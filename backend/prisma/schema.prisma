@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(CUSTOMER)
+  avatar        String?
+  bio           String?
+  locationLat   Float?
+  locationLng   Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  services      Service[] @relation("ProviderServices")
+  bookings      Booking[] @relation("CustomerBookings")
+}
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  icon        String?
+  description String?
+  services    Service[]
+}
+
+model Service {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  providerId  String    @db.ObjectId
+  categoryId  String    @db.ObjectId
+  price       Float
+  description String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  provider    User      @relation("ProviderServices", fields: [providerId], references: [id])
+  category    Category  @relation(fields: [categoryId], references: [id])
+  bookings    Booking[]
+}
+
+model Booking {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  customerId    String        @db.ObjectId
+  serviceId     String        @db.ObjectId
+  status        BookingStatus @default(PENDING)
+  date          DateTime
+  address       String
+  totalAmount   Float
+  paymentStatus String        @default("PENDING") // PENDING, PAID, REFUNDED
+  stripeIntentId String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  customer      User          @relation("CustomerBookings", fields: [customerId], references: [id])
+  service       Service       @relation(fields: [serviceId], references: [id])
+  review        Review?
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String   @unique @db.ObjectId
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+}
