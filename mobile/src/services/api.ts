@@ -1,16 +1,9 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
+const NEW_API_URL = "https://local-service-project.vercel.app";
 
-// Dynamically determine the backend URL based on the manifest
 const getBaseUrl = () => {
-    const hostUri = Constants.expoConfig?.hostUri;
-    if (hostUri) {
-        // Extract IP and use port 3000
-        const ip = hostUri.split(':')[0];
-        return `http://${ip}:3000`;
-    }
-    // Fallback for emulator
-    return 'http://10.0.2.2:3000';
+    return NEW_API_URL;  
 };
 
 const BASE_URL = getBaseUrl();
@@ -81,5 +74,3 @@ export const chatApi = {
         headers: { Authorization: `Bearer ${token}` }
     }),
 };
-
-
