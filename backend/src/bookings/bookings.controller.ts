@@ -4,7 +4,7 @@ import { CreateBookingDto, UpdateBookingStatusDto } from './dto/booking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/schemas/user.schema';
+import { Role } from '@prisma/client';
 
 @Controller('bookings')
 export class BookingsController {

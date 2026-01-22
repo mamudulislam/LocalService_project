@@ -1,11 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
-export enum Role {
-    CUSTOMER = 'CUSTOMER',
-    PROVIDER = 'PROVIDER',
-    ADMIN = 'ADMIN',
-}
+import { Role } from '@prisma/client';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -18,7 +13,7 @@ export class User extends Document {
     @Prop({ required: true })
     name: string;
 
-    @Prop({ type: String, enum: Role, default: 'CUSTOMER' })
+    @Prop({ type: String, enum: Object.values(Role), default: Role.CUSTOMER })
     role: Role;
 
     @Prop()
