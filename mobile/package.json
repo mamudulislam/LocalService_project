@@ -44,7 +44,13 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
+    "@babel/preset-react": "^7.28.5",
+    "@types/istanbul-lib-report": "^3.0.3",
     "@types/react": "~19.1.0",
+    "@types/stack-utils": "^2.0.3",
+    "babel-preset-expo": "^54.0.10",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, withDelay, Easing } from 'react-native-reanimated';
 import { authApi } from '../../src/services/api';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { COLORS, SPACING, RADIUS } from '../../src/constants/theme';
@@ -19,6 +20,44 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const setAuth = useAuthStore((state) => state.setAuth);
+
+    // Animation values
+    const headerOpacity = useSharedValue(0);
+    const headerTranslateY = useSharedValue(-50);
+    const formOpacity = useSharedValue(0);
+    const formTranslateX = useSharedValue(-50);
+    const buttonOpacity = useSharedValue(0);
+    const buttonScale = useSharedValue(0.8);
+
+    useEffect(() => {
+        headerOpacity.value = withTiming(1, { duration: 800 });
+        headerTranslateY.value = withTiming(0, { duration: 800 });
+        formOpacity.value = withDelay(400, withTiming(1, { duration: 600 }));
+        formTranslateX.value = withDelay(400, withTiming(0, { duration: 600, easing: Easing.out(Easing.ease) }));
+        buttonOpacity.value = withDelay(800, withTiming(1, { duration: 500 }));
+        buttonScale.value = withDelay(800, withTiming(1, { duration: 500, easing: Easing.out(Easing.back()) }));
+    }, []);
+
+    const animatedHeaderStyle = useAnimatedStyle(() => {
+        return {
+            opacity: headerOpacity.value,
+            transform: [{ translateY: headerTranslateY.value }],
+        };
+    });
+
+    const animatedFormStyle = useAnimatedStyle(() => {
+        return {
+            opacity: formOpacity.value,
+            transform: [{ translateX: formTranslateX.value }],
+        };
+    });
+
+    const animatedButtonStyle = useAnimatedStyle(() => {
+        return {
+            opacity: buttonOpacity.value,
+            transform: [{ scale: buttonScale.value }],
+        };
+    });
 
     const handleLogin = async () => {
         try {
@@ -46,10 +85,7 @@ export default function LoginScreen() {
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* Decorative Header Background */}
-                    <View style={styles.headerDecoration} />
-
-                    <View style={styles.header}>
+                    <Animated.View style={[styles.header, animatedHeaderStyle]}>
                         <View style={styles.logoContainer}>
                             <View style={styles.logoIcon}>
                                 <View style={styles.logoInner} />
@@ -57,16 +93,16 @@ export default function LoginScreen() {
                         </View>
                         <Text style={styles.title}>Welcome Back</Text>
                         <Text style={styles.subtitle}>Sign in to discover and book premium local services</Text>
-                    </View>
+                    </Animated.View>
 
-                    {error ? (
-                        <View style={styles.errorContainer}>
-                            <AlertCircle size={20} color={COLORS.error} />
-                            <Text style={styles.errorText}>{error}</Text>
-                        </View>
-                    ) : null}
+                    <Animated.View style={[styles.form, animatedFormStyle]}>
+                        {error ? (
+                            <View style={styles.errorContainer}>
+                                <AlertCircle size={20} color={COLORS.error} />
+                                <Text style={styles.errorText}>{error}</Text>
+                            </View>
+                        ) : null}
 
-                    <View style={styles.form}>
                         <Input
                             label="Email Address"
                             placeholder="name@example.com"
@@ -93,14 +129,16 @@ export default function LoginScreen() {
                             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                         </TouchableOpacity>
 
-                        <Button
-                            title="Sign In"
-                            onPress={handleLogin}
-                            loading={loading}
-                            style={styles.loginButton}
-                            icon={<ArrowRight size={20} color="white" />}
-                        />
-                    </View>
+                        <Animated.View style={animatedButtonStyle}>
+                            <Button
+                                title="Sign In"
+                                onPress={handleLogin}
+                                loading={loading}
+                                style={styles.loginButton}
+                                icon={<ArrowRight size={20} color="white" />}
+                            />
+                        </Animated.View>
+                    </Animated.View>
 
                     <View style={styles.footer}>
                         <Text style={styles.footerText}>Don't have an account? </Text>
